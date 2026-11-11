@@ -37,6 +37,35 @@ and pick this repo. Render builds it and gives you a public URL.
 > The free tier runs on demo data and sleeps when idle (first visit after a nap
 > takes ~30–60s to wake). The demo busyness graph is regenerated on each boot.
 
+## Collecting real data (for free, via GitHub Actions)
+
+Instead of running a server 24/7 to log occupancy, this repo collects data with
+a **scheduled GitHub Action** (`.github/workflows/collect.yml`). On a schedule
+it fetches one snapshot and commits it to `data/history.collected.jsonl`, so
+real busyness history builds up **in the repo itself** — durable, free, and
+available to anyone who clones it. The website reads this committed history, so
+your graphs fill with real data even on a free (ephemeral) host.
+
+**To turn on real collection:**
+
+1. Sign up for a scraping provider (needed because UCL's feed is behind
+   Cloudflare — see `.env.example` for provider templates) and get an API key.
+2. In the repo: **Settings → Secrets and variables → Actions**
+   - add **secrets** `SCRAPER_URL_TEMPLATE` and `SCRAPER_API_KEY`
+   - add a **variable** `DATA_SOURCE` = `scrape`
+3. That's it. The Action runs hourly (07:00–23:00 UTC by default). Change the
+   `cron:` in the workflow to collect more or less often to suit your provider's
+   free-tier credits. You can also trigger it manually from the **Actions** tab.
+
+Until you configure the secrets, the Action safely runs on **mock** data, so you
+can test the collect-and-commit flow first.
+
+Run a collection locally any time with:
+
+```bash
+npm run collect
+```
+
 ## License
 
 MIT

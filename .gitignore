@@ -1,5 +1,9 @@
 node_modules/
-# Logged occupancy snapshots (generated at runtime). Keep the folder, ignore data.
-data/*.jsonl
+
+# Runtime occupancy snapshots (in-process poller + demo seed). Ephemeral.
+data/history.jsonl
+# ...but DO commit the durable history collected by the GitHub Actions cron:
+!data/history.collected.jsonl
+
 .env
 *.log

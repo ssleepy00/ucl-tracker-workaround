@@ -44,10 +44,21 @@ export const settings = {
   // How many days of demo history to generate when seeding.
   seedDays: intFromEnv('SEED_DAYS', 3),
 
-  // Path to the append-only history file (JSON Lines).
+  // Path to the append-only history file (JSON Lines). This is the RUNTIME file
+  // written by the in-process poller and by demo seeding. It is gitignored and
+  // treated as ephemeral (e.g. on Render it resets on each deploy).
   historyFile:
     process.env.HISTORY_FILE ||
     new URL('../../data/history.jsonl', import.meta.url).pathname,
+
+  // Path to the COMMITTED history file (JSON Lines). This is the durable,
+  // version-controlled data collected by the GitHub Actions cron job
+  // (see .github/workflows/collect.yml) and is NOT gitignored. The API reads
+  // this in addition to the runtime file, so real collected history persists
+  // across deploys and is available to anyone who clones the repo.
+  collectedHistoryFile:
+    process.env.COLLECTED_HISTORY_FILE ||
+    new URL('../../data/history.collected.jsonl', import.meta.url).pathname,
 };
 
 // R/A/G classification thresholds, as occupancy fraction (0..1).
