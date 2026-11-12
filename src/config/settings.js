@@ -2,6 +2,16 @@
 // build runs in development (mock data) and production (live scraped data)
 // without code changes.
 
+import { fileURLToPath } from 'node:url';
+
+// Resolve a path relative to this file in a cross-platform way. Using
+// `new URL(...).pathname` breaks on Windows (it yields "/C:/Users/..." which
+// then gets mangled into "C:\C:\Users\..."); fileURLToPath handles the drive
+// letter and slashes correctly on every OS.
+function resolveFromHere(relativePath) {
+  return fileURLToPath(new URL(relativePath, import.meta.url));
+}
+
 function intFromEnv(name, fallback) {
   const raw = process.env[name];
   if (raw === undefined || raw === '') return fallback;
@@ -49,7 +59,7 @@ export const settings = {
   // treated as ephemeral (e.g. on Render it resets on each deploy).
   historyFile:
     process.env.HISTORY_FILE ||
-    new URL('../../data/history.jsonl', import.meta.url).pathname,
+    resolveFromHere('../../data/history.jsonl'),
 
   // Path to the COMMITTED history file (JSON Lines). This is the durable,
   // version-controlled data collected by the GitHub Actions cron job
@@ -58,7 +68,7 @@ export const settings = {
   // across deploys and is available to anyone who clones the repo.
   collectedHistoryFile:
     process.env.COLLECTED_HISTORY_FILE ||
-    new URL('../../data/history.collected.jsonl', import.meta.url).pathname,
+    resolveFromHere('../../data/history.collected.jsonl'),
 };
 
 // R/A/G classification thresholds, as occupancy fraction (0..1).
